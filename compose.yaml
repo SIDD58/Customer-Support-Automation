@@ -1,0 +1,47 @@
+services:
+
+  # Pure Cache for Rate Limiting
+  redis-cache:
+    image: redis:8.2.4-alpine
+    container_name: redis-caching
+    command: redis-server
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_cache_data:/data 
+    restart: always
+  
+  #Persistent Store for Celery Queue and Results
+  redis-db:
+    image: redis:8.2.4-alpine # Using stable alpine
+    container_name: redis-persistent-aof
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_store_data:/data
+    restart: always
+
+  # Task monitoring Celery Monitoring Dashboard
+  flower:
+    image: mher/flower
+    container_name: celery-flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis-db:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis-db
+
+  # Visualization Tool for Redis
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "8001:8001"
+    restart: always
+
+volumes:
+  redis_store_data:
+  redis_cache_data:
+    driver: local

@@ -1,0 +1,24 @@
+# --- Python / Bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual Environments (uv / pip) ---
+.venv/
+venv/
+
+
+# --- Environment Variables (Crucial for security) ---
+.env
+
+# --- Version Managers ---
+.python-version
+
+# --- IDEs and OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Logs and temporary files ---
+*.log
