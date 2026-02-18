@@ -68,6 +68,7 @@ Response
 }
 
 ## Project Structure
+```
 .
 ├── customer_pipeline/
 │   ├── nodes/           # LangGraph Node logic (Categorizer, Drafter, etc.)
@@ -77,10 +78,7 @@ Response
 ├── main.py              # FastAPI routes
 ├── docker-compose.yml   # Redis services & Celery and redis Monitoring setup
 └── pyproject.toml       # Dependencies (uv)
-
-
-## AI PIPELINE
-![Demo Screenshot](images/flowchart.png)
+```
 
 
 ## DEBUGGING TOOLS AND VISUALIZATIONS
@@ -114,3 +112,5 @@ Refund Integrity: If refund_eligible is False, AI must politely decline.
 Loop Limitation: The system allows a maximum of 3 retries for the AI to fix a non-compliant draft before escalating to a human fallback message.
 
 
+## AI PIPELINE
+![Demo Screenshot](images/flowchart.png)
