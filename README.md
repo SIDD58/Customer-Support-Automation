@@ -3,11 +3,11 @@
 A production-grade backend system that uses **LangGraph** for multi-step AI reasoning and **Celery/Redis** for asynchronous background processing.
 
 ## Key Features
-- **Async Architecture**: Immediate `202 Processing` response while the AI works in the background.
-- **Compliance Guardrails**: A self-correcting loop that audits AI drafts against business rules (no fake dates, no unauthorized refunds).
+- **Async Architecture**: Immediate `202 Processing` response while the AI works in the background (celery redis queue)
+- **Categorizer**: Categorize the message , retry Logic and fallback node. 
+- **Compliance Guardrails**: A self-correcting loop that audits AI drafts against business rules (no fake dates, no unauthorized refunds). 
 - **Stateful Reasoning**: Uses LangGraph to maintain context, retry counts, and internal logs.
-- **Observability**: Integrated monitoring via langsmoith , Flower (Celery) and RedisInsight
-
+- **Observability**: Integrated monitoring via langsmith (form iterative prompt development) , Flower (Celery) and RedisInsight
 ---
 
 ## 🛠 Prerequisites
@@ -36,7 +36,7 @@ LANGCHAIN_PROJECT="support-automation-async"
 # Redis Config
 REDIS_PERSISTENT_URL=redis://localhost:6379/0
 REDIS_CACHE_URL=redis://localhost:6380/0
-
+```
 
 ## Setup Commands (Run each command in different terminal in same order)
 1. docker-compose up -d
