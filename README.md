@@ -6,7 +6,7 @@ A production-grade backend system that uses **LangGraph** for multi-step AI reas
 - **Async Architecture**: Immediate `202 Processing` response while the AI works in the background.
 - **Compliance Guardrails**: A self-correcting loop that audits AI drafts against business rules (no fake dates, no unauthorized refunds).
 - **Stateful Reasoning**: Uses LangGraph to maintain context, retry counts, and internal logs.
-- **Observability**: Integrated monitoring via Flower (Celery) and RedisInsight.
+- **Observability**: Integrated monitoring via langsmoith , Flower (Celery) and RedisInsight
 
 ---
 
@@ -20,7 +20,7 @@ Ensure you have the following installed:
 
 ---
 
-## ⚙️ Environment Setup
+## Environment Setup
 
 Create a `.env` file in the root directory:
 
@@ -78,6 +78,11 @@ Response
 ├── docker-compose.yml   # Redis services & Celery and redis Monitoring setup
 └── pyproject.toml       # Dependencies (uv)
 
+
+## AI PIPELINE
+![Demo Screenshot](images/flowchart.png)
+
+
 ## DEBUGGING TOOLS AND VISUALIZATIONS
 
 FastAPI Docs
@@ -109,4 +114,3 @@ Refund Integrity: If refund_eligible is False, AI must politely decline.
 Loop Limitation: The system allows a maximum of 3 retries for the AI to fix a non-compliant draft before escalating to a human fallback message.
 
 
-## AI PIPELINE
