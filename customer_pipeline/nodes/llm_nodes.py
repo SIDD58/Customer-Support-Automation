@@ -55,9 +55,15 @@ def drafting_node(state: State):
     if state.get("compliance_feedback") and state.get("draft_response"):
         feedback_context = f"""
         ---
-        PREVIOUS ATTEMPT: {state['draft_response']}
-        REJECTION REASON: {state['compliance_feedback']}
-        INSTRUCTION: Fix the draft to comply with business rules.
+        CRITICAL: Your previous draft was REJECTED by the compliance auditor.
+        
+        REASON FOR REJECTION: {state['compliance_feedback']}
+        
+        PREVIOUS REJECTED VERSION (DO NOT REPEAT THESE ERRORS):
+        "{state['draft_response']}"
+        
+        TASK: Generate a NEW version that solves the feedback. 
+        Notice the specific reasons for rejection and ensure the new draft addresses them.
         ---
         """
 
@@ -106,18 +112,33 @@ def compliance_guardrail_node(state: State):
     
     audit_prompt = f"""
     Review this support draft for business violations.
+    Your ONLY job is to find hard violations of business rules. If a draft is safe, you MUST mark it as compliant.
+    Do not pedantic or invent violations.
 
-    CRITICAL BUSINESS RULES:
-    1. REFUND RULE:
-       - ONLY apply this rule if the Category is 'REFUND' or the draft mentions refunds/money
-       - If Refund Eligible is 'True': The draft MAY confirm a refund.
-       - If Refund Eligible is 'False': The draft MUST NOT promise a refund. It should politely decline or explain policy.
-       - If Refund Eligible is 'None': The draft MUST NOT confirm OR deny a refund. It should state information is unavailable.
-    
-    2. DELIVERY RULE:
-       - ONLY apply this rule if the Category is 'SHIPPING' or the draft mentions soemthing about delivery dates
-       - If Delivery Date is 'None' or 'NOT AVAILABLE': The draft MUST NOT mention any specific dates, days of the week, or timeframes (e.g., 'in 3 days').
+    1. GENERAL RULE: 
+    - Violation: Including unsolicited information that wasn't requested.
+    - If customer has not asked about refund mention nothing about refunds. 
+    Irresespective of refund eligibility, if the customer hasn't inquired about refunds, you should not mention or imply anything about refunds in the response.
+    - If customer has not asked about delivery dates mention nothing about delivery dates.
+    Irrespective of delivery date availability, if the customer hasn't inquired about delivery dates, you should not mention or imply anything about delivery dates in the response.
+     
+    2. RULE CHECKING IS CONTEXTUAL - Only apply rules relevant to the customer's inquiry.
+     CRITICAL 
+    - ONLY CHECK REFUND RULE if customer asked about refund related inforamtion 
+    - ONLY CHECK DELIVERY RULE if customer asked about delivery related information
 
+    3. REFUND RULE :
+   - IF Refund Eligible is 'False':
+     - ALLOWED : Stating the order is ineligible for a refund or politely declining.
+     - VIOLATION: Promising money, a return, or implying a refund is possible.
+
+    4. DELIVERY RULE :
+   - IF Delivery Date is 'None' or 'NOT AVAILABLE': 
+     - VIOLATION: Any language implying a timeframe: "soon", "shortly", "quickly", "this week", "on the way". 
+     - VIOLATION: Anything implying date (e.g., 'Oct 5th'), a day (e.g., 'Monday'), or a relative arrival time (e.g., 'in 2 days', 'shortly', 'soon').
+     - ALLOWED: "In Transit" is a STATUS, not a timeframe. Do NOT flag "In Transit".
+     - ALLOWED: Using the exact phrase "In Transit" or "Shipped" (FACT).
+     - ALLOWED: Saying "A specific date is not available" (FACT).
     
     DATA:
     - Refund Eligible: {state['refund_eligible']}

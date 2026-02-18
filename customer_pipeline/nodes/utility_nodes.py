@@ -23,3 +23,14 @@ def fetch_order_context_node(state: State)-> Dict[str, Any]:
         "refund_eligible": order_info["refund_eligible"],
         "internal_logs": [f"Successfully fetched context for {order_id}."]
     }
+
+
+def fallback_node(state: State):
+    return {
+        "final_response": (
+            "I'm sorry, I'm having trouble accessing the specific details needed to "
+            "resolve your request at the moment. I have escalated this to our human "
+            "support team who will follow up with you shortly."
+        ),
+        "internal_logs": ["CRITICAL: Max retries reached. AI failed compliance. Fallback triggered."]
+    }

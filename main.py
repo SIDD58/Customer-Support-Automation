@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI,Depends
 from pydantic import BaseModel
 from tasks.pipeline_task import run_support_workflow
 from celery.result import AsyncResult
+from utils.limiter import RateLimiter
 
 app = FastAPI(title="AI Support Automation")
 
@@ -10,9 +11,10 @@ class SupportRequest(BaseModel):
     order_id: str
     customer_message: str
 
+
 # --- Endpoints ---
 
-@app.post("/support/reply")
+@app.post("/support/reply",dependencies=[Depends(RateLimiter(times=2, seconds=60))])
 async def create_support_task(request: SupportRequest):
     """
     Receives customer inquiry and triggers the Async LangGraph pipeline.

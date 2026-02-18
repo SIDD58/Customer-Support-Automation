@@ -16,6 +16,7 @@ Ensure you have the following installed:
 - [uv](https://github.com/astral-sh/uv) (Python package manager)
 - [Docker & Docker Compose](https://www.docker.com/products/docker-desktop/)
 - An **OpenAI API Key**
+- Use any Tool for API testing like Postman 
 
 ---
 
@@ -40,27 +41,21 @@ REDIS_CACHE_URL=redis://localhost:6380/0
 ## Setup Commands (Run each command in different terminal in same order)
 1. docker-compose up -d
 2. uv sync
-3. uv run celery -A tasks worker --loglevel=info
+3. uv run celery -A tasks.pipeline_task:celery_app worker --loglevel=info --pool=solo
 4. uv run uvicorn main:app --reload
 
-
-## Project Structure
-.
-├── customer_pipeline/
-│   ├── nodes/           # LangGraph Node logic (Categorizer, Drafter, etc.)
-│   ├── state.py         # TypedDict State definition
-│   └── workflow.py      # Graph construction and compilation
-├── tasks.py             # Celery task definitions
-├── main.py              # FastAPI routes
-├── docker-compose.yml   # Redis services & Celery and redis Monitoring setup
-└── pyproject.toml       # Dependencies (uv)
-
-
 ## FAST API request and response 
-1) POST /support/reply
+Use something like Postman to Test URL 
+
+1) POST http://localhost:8000/support/reply
+{
+   "order_id": "ORD123",
+   "customer_message": "Where is my order? It’s been 5 days."
+}
+
 Response {"status": "processing", "task_id": "uuid-string"}
 
-2) GET /support/status/{task_id}
+2) GET http://localhost:8000/support/status/{task_id}
 
 Response 
 {
@@ -71,6 +66,17 @@ Response
     "compliance_checked": true
   }
 }
+
+## Project Structure
+.
+├── customer_pipeline/
+│   ├── nodes/           # LangGraph Node logic (Categorizer, Drafter, etc.)
+│   ├── state.py         # TypedDict State definition
+│   └── workflow.py      # Graph construction and compilation
+├── tasks/               # Celery task definitions
+├── main.py              # FastAPI routes
+├── docker-compose.yml   # Redis services & Celery and redis Monitoring setup
+└── pyproject.toml       # Dependencies (uv)
 
 ## DEBUGGING TOOLS AND VISUALIZATIONS
 
@@ -84,7 +90,12 @@ http://localhost:5555,
 
 RedisInsight 
 "Inspect Redis databases (Port 6379 for Queue, 6380 for Cache)."
-http://localhost:8001,
+http://localhost:5540,
+
+Click on Connect existing database 
+Add connection URL ->redis://default@redis-db:6379
+Then Add connection URL ->redis://default@redis-cache:6379
+
 
 LangSmith,
 View the step-by-step node execution of your AI pipeline.

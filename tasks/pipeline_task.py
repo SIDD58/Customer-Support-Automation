@@ -1,16 +1,21 @@
 
-from celery import Celery
+from celery import Celery,Task
 from customer_pipeline.workflow import app as langgraph_app
+from dotenv import load_dotenv
+import os
+load_dotenv()  # Load environment variables from .env file
+
+REDIS_URL = os.getenv("REDIS_PERSISTENT_URL", "redis://localhost:6379/0")
 
 # Point to the Persistent Redis (Port 6379)
 celery_app = Celery(
     "support_tasks", 
-    broker="redis://localhost:6379/0", 
-    backend="redis://localhost:6379/0"
+    broker=REDIS_URL, 
+    backend=REDIS_URL
 )
 
 @celery_app.task(name="process_support_message", bind=True)
-def run_support_workflow(self:Task, inquiry: dict):
+def run_support_workflow(self: Task, inquiry: dict):
     # Prepare input for LangGraph
     initial_state = {
         "customer_message": inquiry["customer_message"],
